@@ -7,7 +7,7 @@ Main differences - works over HTTP and encodes using ffmpeg, without opus bindin
 ### Why:
 * Scaling;
 * Automatic process spawning and killing when TCP connection closes;
-* Native encoding/decoding only using precompiled FFMpeg binary and stock Node.js.
+* Native encoding/decoding only using precompiled FFmpeg binary and stock Node.js.
 
 ### Why not:
 * No metadata support (yet?).
