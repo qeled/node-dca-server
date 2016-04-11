@@ -57,15 +57,18 @@ class OggOpusDemuxer extends Transform {
 
     return segmentSizes.map(size => reader.read(size));
   }
-  readPage(reader) {
+  readPage(reader, done) {
     if (reader.available < OGG_PAGE_HEADER_SIZE) return false;
     var magic = reader.readString(4);
+    if (magic !== "OggS")
+      return new Error("OGG magic does not match");
+
     var version = reader.readByte();
     var headerType = reader.readByte();
 
     var isContinuation = headerType & (1 << 0);
     if (isContinuation)
-      throw new Error("OGG page continuation handling not implemented");
+      return new Error("OGG page continuation handling not implemented");
 
     var isBeginning = headerType & (1 << 1);
     var isEnd = headerType & (1 << 2);
@@ -107,7 +110,9 @@ class OggOpusDemuxer extends Transform {
     while(!r.ended) {
       // save current position if page reading fails
       var offset = r._offset;
-      if (!this.readPage(r)) {
+      var ok = this.readPage(r, done);
+      if (ok instanceof Error) return done(ok);
+      if (!ok) {
         // save remaining buffer
         this._leftover = chunk.slice(offset, chunk.length);
         break;
